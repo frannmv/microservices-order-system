@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.microservices.ordersystem</groupId>
 	<artifactId>order-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>order-service</name>
 	<description>Microservice responsible for order management</description>
 	<url/>

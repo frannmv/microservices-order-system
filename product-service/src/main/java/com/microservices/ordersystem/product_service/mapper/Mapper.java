@@ -13,7 +13,8 @@ public class Mapper {
                 p.getId(),
                 p.getName(),
                 p.getCategory(),
-                p.getPrice()
+                p.getPrice(),
+                p.getStatus().toString()
         );
     }
 }
