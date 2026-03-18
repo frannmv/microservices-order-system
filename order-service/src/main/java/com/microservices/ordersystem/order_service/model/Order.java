@@ -1,9 +1,11 @@
 package com.microservices.ordersystem.order_service.model;
 
+import com.microservices.ordersystem.order_service.exceptions.InvalidOrderException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,6 +37,10 @@ public class Order {
     public Order() {};
 
     public Order(Long customerId, List<OrderItem> items) {
+
+        if(items == null || items.isEmpty()) throw new InvalidOrderException("The order must have at least one item");
+        if(customerId == null || customerId <= 0) throw new InvalidOrderException("The customer id must be positive");
+
         this.customerId = customerId;
         this.items = items;
         this.status = OrderStatus.CREATED;

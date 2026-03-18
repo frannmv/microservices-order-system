@@ -6,6 +6,7 @@ import com.microservices.ordersystem.order_service.dto.ProductDto;
 import com.microservices.ordersystem.order_service.dto.UserDto;
 import com.microservices.ordersystem.order_service.exceptions.CustomerNotFoundException;
 import com.microservices.ordersystem.order_service.exceptions.InvalidProductException;
+import com.microservices.ordersystem.order_service.exceptions.InvalidQuantityException;
 import com.microservices.ordersystem.order_service.exceptions.OrderNotFoundException;
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.model.OrderItem;
@@ -36,9 +37,12 @@ public class OrderService {
     public Order create(Order order) {
 
         UserDto customer = this.userClient.findById(order.getCustomerId());
+
         if(customer == null) throw new CustomerNotFoundException("The customer with id " + order.getCustomerId() + " was not found");
 
         for(OrderItem item : order.getItems()) {
+
+            if(item.getQuantity() <= 0) throw new InvalidQuantityException("Quantity must be positive");
 
             ProductDto product = this.productClient.findById(item.getProductId());
 

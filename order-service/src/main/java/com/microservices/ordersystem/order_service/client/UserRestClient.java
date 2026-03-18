@@ -1,6 +1,11 @@
 package com.microservices.ordersystem.order_service.client;
 
 import com.microservices.ordersystem.order_service.dto.UserDto;
+import com.microservices.ordersystem.order_service.exceptions.ProductNotFoundException;
+import com.microservices.ordersystem.order_service.exceptions.ServiceUnavailableException;
+import com.microservices.ordersystem.order_service.exceptions.UserNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -15,10 +20,18 @@ public class UserRestClient {
                 .build();
     }
 
-    public UserDto findById(Long userId) {
+    public UserDto findById(Long id) {
         return this.restClient.get()
-                .uri("/users/{id}",userId)
+                .uri("/users/{id}",id)
                 .retrieve()
+                .onStatus(
+                        status -> status == HttpStatus.NOT_FOUND,
+                        (request, response) -> {
+                            throw new UserNotFoundException("User not found: " + id);
+                        })
+                .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                    throw new ServiceUnavailableException("Product Service is unavailable");
+                })
                 .body(UserDto.class);
     }
 }
