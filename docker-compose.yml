@@ -1,4 +1,15 @@
 services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "9090:8080"
+    depends_on:
+      - product-service
+      - user-service
+      - order-service
+      - inventory-service
+    networks:
+      - microservices-net
 
   product-service:
     build: ./product-service
