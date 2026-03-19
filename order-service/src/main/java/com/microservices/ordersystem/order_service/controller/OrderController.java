@@ -4,8 +4,10 @@ import com.microservices.ordersystem.order_service.dto.OrderDto;
 import com.microservices.ordersystem.order_service.mapper.Mapper;
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.service.OrderService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,22 +21,24 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderDto> getOrders() {
-        return this.service.getOrders().stream().map(Mapper::toDto).toList();
+    public ResponseEntity<List<OrderDto>> getOrders() {
+        return ResponseEntity.ok(this.service.getOrders().stream().map(Mapper::toDto).toList());
     }
 
     @GetMapping("/{id}")
-    public OrderDto getOrderById(@PathVariable Long id) {
-        return Mapper.toDto(this.service.getOrderById(id));
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long id) {
+        return ResponseEntity.ok(Mapper.toDto(this.service.getOrderById(id)));
     }
 
     @PostMapping
-    public OrderDto createOrder(@RequestBody Order order) {
-        return Mapper.toDto(this.service.create(order));
+    public ResponseEntity<OrderDto> createOrder(@RequestBody Order order) {
+        OrderDto created = Mapper.toDto(this.service.create(order));
+        return ResponseEntity.created(URI.create("/orders/" + created.getId())).body(created);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         this.service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

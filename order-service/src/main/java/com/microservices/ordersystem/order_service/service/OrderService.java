@@ -5,9 +5,10 @@ import com.microservices.ordersystem.order_service.client.UserRestClient;
 import com.microservices.ordersystem.order_service.dto.ProductDto;
 import com.microservices.ordersystem.order_service.dto.UserDto;
 import com.microservices.ordersystem.order_service.exceptions.CustomerNotFoundException;
-import com.microservices.ordersystem.order_service.exceptions.InvalidProductException;
+
 import com.microservices.ordersystem.order_service.exceptions.InvalidQuantityException;
 import com.microservices.ordersystem.order_service.exceptions.OrderNotFoundException;
+
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.model.OrderItem;
 import com.microservices.ordersystem.order_service.repository.OrderRepository;
