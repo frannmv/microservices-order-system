@@ -1,13 +1,9 @@
 package com.microservices.ordersystem.order_service.service;
 
+import com.microservices.ordersystem.order_service.client.InventoryRestClient;
 import com.microservices.ordersystem.order_service.client.ProductRestClient;
 import com.microservices.ordersystem.order_service.client.UserRestClient;
-import com.microservices.ordersystem.order_service.dto.ProductDto;
-import com.microservices.ordersystem.order_service.dto.UserDto;
-import com.microservices.ordersystem.order_service.exceptions.CustomerNotFoundException;
-
-import com.microservices.ordersystem.order_service.exceptions.InvalidQuantityException;
-import com.microservices.ordersystem.order_service.exceptions.OrderNotFoundException;
+import com.microservices.ordersystem.order_service.exceptions.*;
 
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.model.OrderItem;
@@ -25,6 +21,7 @@ public class OrderService {
     private final OrderRepository repo;
     private final UserRestClient userClient;
     private final ProductRestClient productClient;
+    private final InventoryRestClient inventoryClient;
 
     public List<Order> getOrders() {
         return this.repo.findAll();
@@ -37,25 +34,15 @@ public class OrderService {
     @Transactional
     public Order create(Order order) {
 
-        UserDto customer = this.userClient.findById(order.getCustomerId());
-
-        if(customer == null) throw new CustomerNotFoundException("The customer with id " + order.getCustomerId() + " was not found");
+        this.userClient.isValid(order.getCustomerId());
 
         for(OrderItem item : order.getItems()) {
 
             if(item.getQuantity() <= 0) throw new InvalidQuantityException("Quantity must be positive");
 
-            ProductDto product = this.productClient.findById(item.getProductId());
-
-            if(product == null) {
-                throw new InvalidProductException("The product with id " + item.getProductId() + " was not found");
-            }
-
-            if(product.getStatus().equals("INACTIVE")) {
-                throw new InvalidProductException("The product with id " + item.getProductId() + " is not available");
-            }
+            this.productClient.isValid(item.getProductId());
+            this.inventoryClient.updateStock(item.getProductId(), item.getQuantity());
         }
-
         return this.repo.save(order);
     }
 

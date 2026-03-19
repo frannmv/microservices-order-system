@@ -19,18 +19,16 @@ public class ProductRestClient {
                 .build();
     }
 
-    public ProductDto findById(Long id) {
-        return this.client.get()
-                .uri("/products/{id}", id)
+    public void isValid(Long id) {
+        this.client.get()
+                .uri("/products/{id}/available", id)
                 .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.NOT_FOUND,
-                        (request, response) -> {
-                        throw new ProductNotFoundException("Product not found: " + id);
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    throw new ProductNotFoundException("Product not found or not available: " + id);
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     throw new ServiceUnavailableException("Product Service is unavailable");
                 })
-                .body(ProductDto.class);
+                .toBodilessEntity();
     }
 }

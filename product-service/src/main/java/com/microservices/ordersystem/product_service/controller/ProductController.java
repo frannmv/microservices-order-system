@@ -32,6 +32,12 @@ public class ProductController {
         return ResponseEntity.ok(Mapper.toDto(this.service.getProductById(id)));
     }
 
+    @GetMapping("/{id}/available")
+    public ResponseEntity<Void> isValid(@PathVariable Long id) {
+        this.service.isValid(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody Product p) {
         ProductDTO created = Mapper.toDto(this.service.create(p));
