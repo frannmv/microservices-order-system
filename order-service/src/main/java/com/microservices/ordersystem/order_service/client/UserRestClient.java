@@ -20,18 +20,16 @@ public class UserRestClient {
                 .build();
     }
 
-    public UserDto findById(Long id) {
-        return this.restClient.get()
-                .uri("/users/{id}",id)
+    public void isValid(Long id) {
+        this.restClient.get()
+                .uri("/users/{id}", id)
                 .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.NOT_FOUND,
-                        (request, response) -> {
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                             throw new UserNotFoundException("User not found: " + id);
                         })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-                    throw new ServiceUnavailableException("Product Service is unavailable");
+                    throw new ServiceUnavailableException("User Service is unavailable");
                 })
-                .body(UserDto.class);
+                .toBodilessEntity();
     }
 }

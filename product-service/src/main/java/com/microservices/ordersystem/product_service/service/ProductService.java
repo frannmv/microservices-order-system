@@ -1,8 +1,7 @@
 package com.microservices.ordersystem.product_service.service;
 
-import com.microservices.ordersystem.product_service.dto.ProductDTO;
-import com.microservices.ordersystem.product_service.exceptions.NotFoundException;
-import com.microservices.ordersystem.product_service.mapper.Mapper;
+import com.microservices.ordersystem.product_service.exceptions.ProductNotAvailableException;
+import com.microservices.ordersystem.product_service.exceptions.ProductNotFoundException;
 import com.microservices.ordersystem.product_service.model.Category;
 import com.microservices.ordersystem.product_service.model.Product;
 import com.microservices.ordersystem.product_service.repository.ProductRepository;
@@ -47,7 +46,7 @@ public class ProductService {
     }
 
     public Product getProductById(Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found"));
+        return this.repository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found"));
     }
 
     public Product create(Product p) {
@@ -71,5 +70,10 @@ public class ProductService {
         old.setStatus(p.getStatus());
 
         return old;
+    }
+
+    public void isValid(Long id) {
+        Product product = this.getProductById(id);
+        if(!product.isActive()) throw new ProductNotAvailableException("Product " + id + " is not available");
     }
 }

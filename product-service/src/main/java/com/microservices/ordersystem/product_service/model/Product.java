@@ -28,4 +28,8 @@ public class Product {
         this.price = price;
         this.status = status;
     }
+
+    public Boolean isActive() {
+        return "ACTIVE".equals(this.getStatus().toString());
+    }
 }
