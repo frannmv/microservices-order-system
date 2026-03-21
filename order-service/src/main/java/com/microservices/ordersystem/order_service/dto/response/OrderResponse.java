@@ -1,4 +1,4 @@
-package com.microservices.ordersystem.order_service.dto;
+package com.microservices.ordersystem.order_service.dto.response;
 
 import lombok.Getter;
 
@@ -7,18 +7,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class OrderDto {
+public class OrderResponse {
 
     private Long id;
     private Long customerId;
-    private List<OrderItemDto> items;
+    private List<OrderItemResponse> items;
     private BigDecimal total;
     private String status;
     private LocalDateTime createdAt;
 
-    public OrderDto() {};
+    public OrderResponse() {};
 
-    public OrderDto(Long id, Long customerId,  List<OrderItemDto> items, BigDecimal total, String status, LocalDateTime createdAt) {
+    public OrderResponse(Long id, Long customerId, List<OrderItemResponse> items, BigDecimal total, String status, LocalDateTime createdAt) {
         this.id = id;
         this.customerId = customerId;
         this.items = items;
@@ -29,6 +29,6 @@ public class OrderDto {
     }
 
     private void calculateTotal() {
-        this.total = items.stream().map(OrderItemDto::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.total = items.stream().map(OrderItemResponse::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

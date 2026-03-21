@@ -1,20 +1,20 @@
-package com.microservices.ordersystem.order_service.dto;
+package com.microservices.ordersystem.order_service.dto.response;
 
 import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Getter
-public class OrderItemDto {
+public class OrderItemResponse {
 
     private Long productId;
     private String productName;
     private Integer quantity;
     private BigDecimal unitPrice;
 
-    public OrderItemDto() {};
+    public OrderItemResponse() {};
 
-    public OrderItemDto(Long productId, String productName, Integer quantity, BigDecimal unitPrice) {
+    public OrderItemResponse(Long productId, String productName, Integer quantity, BigDecimal unitPrice) {
         this.productId = productId;
         this.productName = productName;
         this.quantity = quantity;

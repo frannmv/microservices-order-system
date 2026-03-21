@@ -1,9 +1,8 @@
 package com.microservices.ordersystem.order_service.client;
 
-import com.microservices.ordersystem.order_service.dto.ProductDto;
+import com.microservices.ordersystem.order_service.dto.external.ProductDto;
 import com.microservices.ordersystem.order_service.exceptions.ProductNotFoundException;
 import com.microservices.ordersystem.order_service.exceptions.ServiceUnavailableException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;

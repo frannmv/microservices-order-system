@@ -1,9 +1,8 @@
 package com.microservices.ordersystem.order_service.controller;
 
-import com.microservices.ordersystem.order_service.dto.OrderDto;
-import com.microservices.ordersystem.order_service.dto.OrderRequestDto;
+import com.microservices.ordersystem.order_service.dto.response.OrderResponse;
+import com.microservices.ordersystem.order_service.dto.request.CreateOrderRequest;
 import com.microservices.ordersystem.order_service.mapper.Mapper;
-import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,18 +21,18 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getOrders() {
+    public ResponseEntity<List<OrderResponse>> getOrders() {
         return ResponseEntity.ok(this.service.getOrders().stream().map(Mapper::toDto).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(Mapper.toDto(this.service.getOrderById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto order) {
-        OrderDto created = Mapper.toDto(this.service.create(order));
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest order) {
+        OrderResponse created = Mapper.toDto(this.service.create(order));
         return ResponseEntity.created(URI.create("/orders/" + created.getId())).body(created);
     }
 
