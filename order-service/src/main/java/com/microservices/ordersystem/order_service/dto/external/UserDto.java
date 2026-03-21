@@ -1,4 +1,4 @@
-package com.microservices.ordersystem.order_service.dto;
+package com.microservices.ordersystem.order_service.dto.external;
 
 import lombok.Getter;
 

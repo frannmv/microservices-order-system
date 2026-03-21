@@ -1,9 +1,8 @@
 package com.microservices.ordersystem.order_service.client;
 
-import com.microservices.ordersystem.order_service.dto.ProductDto;
+import com.microservices.ordersystem.order_service.dto.external.ProductDto;
 import com.microservices.ordersystem.order_service.exceptions.ProductNotFoundException;
 import com.microservices.ordersystem.order_service.exceptions.ServiceUnavailableException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -19,8 +18,8 @@ public class ProductRestClient {
                 .build();
     }
 
-    public void isValid(Long id) {
-        this.client.get()
+    public ProductDto get(Long id) {
+        return this.client.get()
                 .uri("/products/{id}/available", id)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
@@ -29,6 +28,6 @@ public class ProductRestClient {
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     throw new ServiceUnavailableException("Product Service is unavailable");
                 })
-                .toBodilessEntity();
+                .body(ProductDto.class);
     }
 }

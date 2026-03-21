@@ -1,17 +1,17 @@
 package com.microservices.ordersystem.order_service.mapper;
 
-import com.microservices.ordersystem.order_service.dto.OrderDto;
-import com.microservices.ordersystem.order_service.dto.OrderItemDto;
+import com.microservices.ordersystem.order_service.dto.response.OrderResponse;
+import com.microservices.ordersystem.order_service.dto.response.OrderItemResponse;
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.model.OrderItem;
 
 public class Mapper {
 
-    public static OrderDto toDto(Order order) {
+    public static OrderResponse toDto(Order order) {
 
         if(order == null) return null;
 
-        return new OrderDto(
+        return new OrderResponse(
                 order.getId(),
                 order.getCustomerId(),
                 order.getItems().stream().map(Mapper::toDto).toList(),
@@ -21,11 +21,11 @@ public class Mapper {
         );
     }
 
-    public static OrderItemDto toDto(OrderItem item) {
+    public static OrderItemResponse toDto(OrderItem item) {
 
         if(item == null) return null;
 
-        return new OrderItemDto(
+        return new OrderItemResponse(
                 item.getProductId(),
                 item.getProductName(),
                 item.getQuantity(),

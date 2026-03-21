@@ -3,6 +3,9 @@ package com.microservices.ordersystem.order_service.service;
 import com.microservices.ordersystem.order_service.client.InventoryRestClient;
 import com.microservices.ordersystem.order_service.client.ProductRestClient;
 import com.microservices.ordersystem.order_service.client.UserRestClient;
+import com.microservices.ordersystem.order_service.dto.request.OrderItemRequest;
+import com.microservices.ordersystem.order_service.dto.request.CreateOrderRequest;
+import com.microservices.ordersystem.order_service.dto.external.ProductDto;
 import com.microservices.ordersystem.order_service.exceptions.*;
 
 import com.microservices.ordersystem.order_service.model.Order;
@@ -32,18 +35,25 @@ public class OrderService {
     }
 
     @Transactional
-    public Order create(Order order) {
+    public Order create(CreateOrderRequest request) {
 
-        this.userClient.isValid(order.getCustomerId());
+        Long customerId = request.getCustomerId();
+        this.userClient.isValid(customerId);
 
-        for(OrderItem item : order.getItems()) {
+        Order created = new Order();
+        created.setCustomerId(customerId);
+
+        for(OrderItemRequest item : request.getItems()) {
 
             if(item.getQuantity() <= 0) throw new InvalidQuantityException("Quantity must be positive");
 
-            this.productClient.isValid(item.getProductId());
+            ProductDto product = this.productClient.get(item.getProductId());
+
             this.inventoryClient.updateStock(item.getProductId(), item.getQuantity());
+
+            created.addOrderItem(new OrderItem(product.getId(), product.getName(), item.getQuantity(), product.getPrice()));
         }
-        return this.repo.save(order);
+        return this.repo.save(created);
     }
 
     public void delete(Long id) {

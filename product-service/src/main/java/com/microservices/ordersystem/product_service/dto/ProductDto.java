@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @Getter
-public class ProductDTO {
+public class ProductDto {
 
     private Long id;
     private String name;
@@ -14,7 +14,7 @@ public class ProductDTO {
     private BigDecimal price;
     private String status;
 
-    public ProductDTO(Long id, String name, Category category, BigDecimal price, String status) {
+    public ProductDto(Long id, String name, Category category, BigDecimal price, String status) {
         this.id = id;
         this.name = name;
         this.category = category;

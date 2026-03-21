@@ -72,8 +72,9 @@ public class ProductService {
         return old;
     }
 
-    public void isValid(Long id) {
+    public Product getAvailableProduct(Long id) {
         Product product = this.getProductById(id);
         if(!product.isActive()) throw new ProductNotAvailableException("Product " + id + " is not available");
+        return product;
     }
 }
