@@ -10,6 +10,7 @@ import com.microservices.ordersystem.order_service.exceptions.*;
 
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.model.OrderItem;
+import com.microservices.ordersystem.order_service.model.OrderStatus;
 import com.microservices.ordersystem.order_service.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,7 @@ public class OrderService {
 
             created.addOrderItem(new OrderItem(product.getId(), product.getName(), item.getQuantity(), product.getPrice()));
         }
+        created.calculateTotal();
         return this.repo.save(created);
     }
 

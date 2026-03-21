@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,22 +35,18 @@ public class Order {
     @Setter(AccessLevel.NONE)
     private BigDecimal total;
 
-    public Order() {};
-
-    public Order(Long customerId, List<OrderItem> items) {
-
-        if(items == null || items.isEmpty()) throw new InvalidOrderException("The order must have at least one item");
-        if(customerId == null || customerId <= 0) throw new InvalidOrderException("The customer id must be positive");
-
-        this.customerId = customerId;
-        this.items = items;
+    public Order() {
+        this.items = new ArrayList<>();
         this.status = OrderStatus.CREATED;
         this.createdAt = LocalDateTime.now();
-        this.total = this.calculateTotal();
+    };
+
+    public void calculateTotal() {
+        this.total = this.items.stream().map(OrderItem::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal calculateTotal() {
-        return this.items.stream().map(OrderItem::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+    public void addOrderItem(OrderItem item) {
+        this.items.add(item);
     }
 
     public void addOrderItem(OrderItem item) {
