@@ -3,6 +3,9 @@ package com.microservices.ordersystem.order_service.service;
 import com.microservices.ordersystem.order_service.client.InventoryRestClient;
 import com.microservices.ordersystem.order_service.client.ProductRestClient;
 import com.microservices.ordersystem.order_service.client.UserRestClient;
+import com.microservices.ordersystem.order_service.dto.OrderItemRequestDto;
+import com.microservices.ordersystem.order_service.dto.OrderRequestDto;
+import com.microservices.ordersystem.order_service.dto.ProductDto;
 import com.microservices.ordersystem.order_service.exceptions.*;
 
 import com.microservices.ordersystem.order_service.model.Order;
@@ -12,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -32,18 +36,25 @@ public class OrderService {
     }
 
     @Transactional
-    public Order create(Order order) {
+    public Order create(OrderRequestDto request) {
 
-        this.userClient.isValid(order.getCustomerId());
+        Long customerId = request.getCustomerId();
+        this.userClient.isValid(customerId);
 
-        for(OrderItem item : order.getItems()) {
+        Order created = new Order();
+        created.setCustomerId(customerId);
+
+        for(OrderItemRequestDto item : request.getItems()) {
 
             if(item.getQuantity() <= 0) throw new InvalidQuantityException("Quantity must be positive");
 
-            this.productClient.isValid(item.getProductId());
+            ProductDto product = this.productClient.get(item.getProductId());
+
             this.inventoryClient.updateStock(item.getProductId(), item.getQuantity());
+
+            created.addOrderItem(new OrderItem(product.getId(), product.getName(), item.getQuantity(), product.getPrice()));
         }
-        return this.repo.save(order);
+        return this.repo.save(created);
     }
 
     public void delete(Long id) {

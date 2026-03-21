@@ -19,8 +19,8 @@ public class ProductRestClient {
                 .build();
     }
 
-    public void isValid(Long id) {
-        this.client.get()
+    public ProductDto get(Long id) {
+        return this.client.get()
                 .uri("/products/{id}/available", id)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
@@ -29,6 +29,6 @@ public class ProductRestClient {
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     throw new ServiceUnavailableException("Product Service is unavailable");
                 })
-                .toBodilessEntity();
+                .body(ProductDto.class);
     }
 }

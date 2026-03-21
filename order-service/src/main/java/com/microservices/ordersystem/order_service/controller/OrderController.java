@@ -1,6 +1,7 @@
 package com.microservices.ordersystem.order_service.controller;
 
 import com.microservices.ordersystem.order_service.dto.OrderDto;
+import com.microservices.ordersystem.order_service.dto.OrderRequestDto;
 import com.microservices.ordersystem.order_service.mapper.Mapper;
 import com.microservices.ordersystem.order_service.model.Order;
 import com.microservices.ordersystem.order_service.service.OrderService;
@@ -31,7 +32,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody Order order) {
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequestDto order) {
         OrderDto created = Mapper.toDto(this.service.create(order));
         return ResponseEntity.created(URI.create("/orders/" + created.getId())).body(created);
     }

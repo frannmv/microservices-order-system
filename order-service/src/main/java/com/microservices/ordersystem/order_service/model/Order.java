@@ -51,4 +51,8 @@ public class Order {
     public BigDecimal calculateTotal() {
         return this.items.stream().map(OrderItem::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public void addOrderItem(OrderItem item) {
+        this.items.add(item);
+    }
 }
