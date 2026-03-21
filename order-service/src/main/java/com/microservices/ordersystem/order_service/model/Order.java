@@ -48,4 +48,8 @@ public class Order {
     public void addOrderItem(OrderItem item) {
         this.items.add(item);
     }
+
+    public void addOrderItem(OrderItem item) {
+        this.items.add(item);
+    }
 }
