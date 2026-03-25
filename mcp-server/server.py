@@ -2,46 +2,62 @@ from typing import Any
 
 import httpx
 from mcp.server.fastmcp import FastMCP
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 mcp = FastMCP("Order System MCP Server", host="0.0.0.0", port=8080)
 
 INVENTORY_SERVICE_URL = "http://inventory-service:8080"
 PRODUCT_SERVICE_URL = "http://product-service:8080"
-
-# ─────────────────────────────────────────────
-# PROMPT
-# ─────────────────────────────────────────────
-
-@mcp.prompt()
-def inventory_assistant_prompt(low_stock_threshold: int = 10) -> str:
-    """
-    Guides the AI to behave as an inventory assistant
-    and use the inventory tools effectively.
-    """
-    return f"""
-    You are an inventory management assistant for an order system.
-
-    When the user asks about stock or inventory, you must:
-    - Call 'get_all_inventory' to retrieve the full product list
-    - Call 'check_inventory' when the user mentions a specific product ID
-    - Always sort results by quantity ascending unless the user specifies otherwise
-    - Flag any product with {low_stock_threshold} units or fewer as low stock ⚠️
-    - Flag any product with 0 units as out of stock ❌
-
-    When presenting results:
-    - Be concise and use a clear list format
-    - Always include the product ID and quantity
-    - If asked to increase or decrease stock, confirm the product ID and quantity before acting
-    - Never assume a product ID — ask the user if it's not provided
-
-    If the inventory service is unavailable, inform the user clearly and suggest retrying.
-    """
-
+ORDER_SERVICE_URL = "http://order-service:8080"
+USER_SERVICE_URL = "http://user-service:8080"
 
 # ─────────────────────────────────────────────
 # TOOLS
 # ─────────────────────────────────────────────
+
+
+# ─────────────────────────────────────────────
+# USER
+# ─────────────────────────────────────────────
+
+def format_user(user: dict[str,Any]) -> str:
+    return (
+        f"UserId: {user.get("id")} | "
+        f"Username: {user.get("name")} |"
+        f"Email: {user.get("email")}"
+    )
+
+@mcp.tool()
+async def get_users() -> str:
+    """
+    Retrieve all users.
+    """
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{USER_SERVICE_URL}/users", timeout=5.0)
+            response.raise_for_status()
+            users = response.json()
+            return "\n".join([format_user(user) for user in users])
+        except httpx.HTTPStatusError as e:
+            return f"User service error: {e.response.status_code} - {e.response.text}"
+        except httpx.RequestError as e:
+            return f"Could not reach the user service: {str(e)}"
+        
+@mcp.tool()
+async def get_user_by_id(
+    user_id: int = Field(description="ID of the user", gt=0)
+) -> str:
+    """Retrieve full details of an user by their id"""
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{USER_SERVICE_URL}/users/{user_id}", timeout=5.0)
+            response.raise_for_status()
+            return format_user(response.json())
+        except httpx.HTTPStatusError as e:
+            return f"User service error: {e.response.status_code} - {e.response.text}"
+        except httpx.RequestError as e:
+            return f"Could not reach the user service: {str(e)}"
+
 
 # ─────────────────────────────────────────────
 # PRODUCT
@@ -237,6 +253,39 @@ async def decrease_stock(
         except httpx.TimeoutException:
             return "Inventory service is not responding. Please try again later."
 
+# ─────────────────────────────────────────────
+# ORDER
+# ─────────────────────────────────────────────
+
+class OrderItem(BaseModel):
+    productId: int = Field(description="The Id of the product",gt=0)
+    quantity: int = Field(description="The quantity desired",gt=0)
+
+@mcp.tool()
+async def create_order(
+        customer_id : int = Field(description="Customer ID"),
+        items : list[OrderItem] = Field(description="List of itemsin the order")
+) -> str:
+    """
+    Create a new order for a customer.
+    Requires a customer ID and at least one item with a productId and a quantity.
+    """
+    if not items:
+        return "Error: an order must have at least one item"
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            payload: dict[str, Any] = {
+                "customerId": customer_id,
+                "items": [item.model_dump() for item in items]
+            }
+            response = await client.post(f"{ORDER_SERVICE_URL}/orders", json=payload)
+            response.raise_for_status()
+            return f"Order created successfully: {response.json()}"
+        except httpx.HTTPStatusError as e:
+            return f"Order creation failed: {e.response.status_code} - {e.response.text}"
+        except httpx.RequestError as e:
+            return f"Could not reach the order service: {str(e)}"
 
 # ─────────────────────────────────────────────
 # ENTRYPOINT
