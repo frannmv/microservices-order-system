@@ -44,7 +44,7 @@ async def get_users() -> str:
             return f"Could not reach the user service: {str(e)}"
         
 @mcp.tool()
-async def get_user_by_id(
+async def get_user(
     user_id: int = Field(description="ID of the user", gt=0)
 ) -> str:
     """Retrieve full details of an user by their id"""
@@ -104,7 +104,7 @@ async def get_products(
             return "Error: Product service timed out"
         
 @mcp.tool()
-async def get_products_by_id(
+async def get_product(
     product_id: int = Field(description="Id of the product")
 ) -> str:
     """Retrieve full details of a single product by its ID"""
@@ -133,7 +133,7 @@ def format_inventory(inventory: dict[str, Any]) -> str:
 
 
 @mcp.tool()
-async def get_all_inventory() -> str:
+async def get_inventory() -> str:
     """
     Retrieve the full inventory list for all products.
     Returns stock quantities for every product in the system.
@@ -157,7 +157,7 @@ async def get_all_inventory() -> str:
             return f"Could not reach the inventory service: {e}"
 
 @mcp.tool()
-async def check_inventory(
+async def get_inventory_by_product(
     product_id: int = Field(description = "Id of the product")
 ) -> str:
     """
